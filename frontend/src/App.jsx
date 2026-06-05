@@ -8,6 +8,8 @@ import { checkAuth } from "./authSlice";
 import AdminPanel from "./components/adminpanel";
 import ProblemPage from "./pages/problempage";
 import Admin from "./pages/adminpage"
+import AdminDelete from "./components/admindelete";
+import AdminUpdate from "./components/adminUpdate";
  function App(){
 // yahan check ki user legit hai ki nahi agar nahi toh login ya signup page nahi tph jis page wo jaana chaa raha hai usii page pe 
 const {isAuthenticated,user,loading}=useSelector((state)=>state.auth);
@@ -35,14 +37,8 @@ if (loading) {
       <Route path="/problem/:problemId" element={<ProblemPage></ProblemPage>}></Route>
       <Route path="/admin" element={isAuthenticated && user?.role === 'admin' ? <Admin></Admin> : <Navigate to="/" />} />
       <Route path="/admin/create" element={isAuthenticated && user?.role === 'admin' ? <AdminPanel /> : <Navigate to="/" />} />
-        {/* <Route 
-        path="/admin" 
-        element={
-          isAuthenticated && user?.role === 'admin' ? 
-            <AdminPanel /> : 
-            <Navigate to="/" />
-        }  
-      />  */}
+      <Route path="/admin/delete" element={isAuthenticated && user?.role === 'admin' ? <AdminDelete /> : <Navigate to="/" />} />
+      <Route path="/admin/update" element={isAuthenticated && user?.role === 'admin' ? <AdminUpdate></AdminUpdate> : <Navigate to="/" />} />
     </Routes>
     </>
   )

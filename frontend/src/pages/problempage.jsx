@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { useParams } from 'react-router';
 import axiosClient from "../utils/axiosClient";
+import SubmissionHistory from '../components/submissionhistory';
 
 // Maps frontend lang key → exactly what the backend stores in startCode[].language
 const langMap = {
