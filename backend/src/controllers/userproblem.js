@@ -172,18 +172,19 @@ const solvedAllProblembyUser=async(req,res)=>{
     res.status(500).send("server error");
   }
 }
-const submittedProblem=async(req,res)=>{
-try{
- const userId=req.res._id;
- const problemId=req.params.pid;
+const submittedProblem = async (req, res) => {
+  try {
+    const userId = req.result._id;  
+    const problemId = req.params.pid;
 
- const ans=await Submission.find({userId,problemId});
- if(ans.length==0)
-    res.send("No submission");
- res.status(200).send(ans);
-}
-catch(err){
-res.status(500).send("Internal server error"+err.message);
-}
+    const ans = await Submission.find({ userId, problemId });
+    if (ans.length == 0)
+      return res.send("No submission");  
+
+    res.status(200).send(ans);
+  }
+  catch (err) {
+    res.status(500).send("Internal server error" + err.message);
+  }
 }
 module.exports = {createProblem,updateProblem,deleteProblem,getProblemById,getAllProblem,solvedAllProblembyUser,submittedProblem};

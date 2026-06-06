@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import { useParams } from 'react-router';
 import axiosClient from "../utils/axiosClient";
-import SubmissionHistory from '../components/submissionhistory';
+import SubmissionHistory from "../components/SubmissionHistory";
+import ChatAi from '../components/chatAi';
 
-// Maps frontend lang key → exactly what the backend stores in startCode[].language
 const langMap = {
   cpp: 'c++',
   java: 'java',
@@ -23,14 +23,14 @@ const ProblemPage = () => {
   const editorRef = useRef(null);
   const { problemId } = useParams();
 
-  // ── Fetch problem ─────────────────────────────────────────────────────────
   useEffect(() => {
     const fetchProblem = async () => {
       setLoading(true);
       try {
         const response = await axiosClient.get(`/problem/problemById/${problemId}`);
         const data = response.data;
-        const sc = data.startCode.find(sc => sc.language === langMap['javascript']);
+        // ✅ FIX: .toLowerCase() lagaya taaki 'JavaScript' aur 'javascript' dono match karein
+        const sc = data.startCode.find(sc => sc.language.toLowerCase() === langMap['javascript']);
         setProblem(data);
         setCode(sc?.initialCode || '');
       } catch (error) {
@@ -42,16 +42,14 @@ const ProblemPage = () => {
     fetchProblem();
   }, [problemId]);
 
-  // ── Swap starter code on language change ──────────────────────────────────
   useEffect(() => {
     if (problem) {
-      const sc = problem.startCode.find(sc => sc.language === langMap[selectedLanguage]);
+      // ✅ FIX: yahan bhi .toLowerCase()
+      const sc = problem.startCode.find(sc => sc.language.toLowerCase() === langMap[selectedLanguage]);
       setCode(sc?.initialCode || '');
     }
   }, [selectedLanguage, problem]);
 
-  // ── Run ───────────────────────────────────────────────────────────────────
-  // Backend returns: array of Judge0 results
   const handleRun = async () => {
     setLoading(true);
     setRunResult(null);
@@ -70,8 +68,6 @@ const ProblemPage = () => {
     }
   };
 
-  // ── Submit ────────────────────────────────────────────────────────────────
-  // Backend returns: { status, testCasesPassed, testCasesTotal, runtime, memory, errorMessage }
   const handleSubmitCode = async () => {
     setLoading(true);
     setSubmitResult(null);
@@ -119,17 +115,16 @@ const ProblemPage = () => {
   return (
     <div className="h-screen flex bg-base-100">
 
-      {/* ── Left Panel ───────────────────────────────────────────────────── */}
+      {/* Left Panel */}
       <div className="w-1/2 flex flex-col border-r border-base-300">
         <div className="tabs tabs-bordered bg-base-200 px-4">
-          {['description', 'editorial', 'solutions', 'submissions'].map(tab => (
+          {['description', 'editorial', 'solutions', 'submissions', 'chatAI'].map(tab => (
             <button
-              type="button"
               key={tab}
               className={`tab ${activeLeftTab === tab ? 'tab-active' : ''}`}
               onClick={() => setActiveLeftTab(tab)}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'chatAI' ? 'ChatAI' : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
@@ -144,9 +139,7 @@ const ProblemPage = () => {
                     <div className={`badge badge-outline ${getDifficultyColor(problem.difficulty)}`}>
                       {problem.difficulty.charAt(0).toUpperCase() + problem.difficulty.slice(1)}
                     </div>
-                    {problem.tags?.map(tag => (
-                      <div key={tag} className="badge badge-primary">{tag}</div>
-                    ))}
+                    <div className="badge badge-primary">{problem.tags}</div>
                   </div>
 
                   <div className="whitespace-pre-wrap text-sm leading-relaxed mb-8">
@@ -159,8 +152,8 @@ const ProblemPage = () => {
                       <div key={index} className="bg-base-200 p-4 rounded-lg">
                         <h4 className="font-semibold mb-2">Example {index + 1}:</h4>
                         <div className="space-y-1 text-sm font-mono">
-                          <div><strong>Input:</strong> <span className="whitespace-pre-wrap">{example.input}</span></div>
-                          <div><strong>Output:</strong> <span className="whitespace-pre-wrap">{example.output}</span></div>
+                          <div><strong>Input:</strong> {example.input}</div>
+                          <div><strong>Output:</strong> {example.output}</div>
                           {example.explanation && (
                             <div><strong>Explanation:</strong> {example.explanation}</div>
                           )}
@@ -199,7 +192,14 @@ const ProblemPage = () => {
               {activeLeftTab === 'submissions' && (
                 <div>
                   <h2 className="text-xl font-bold mb-4">My Submissions</h2>
-                  <p className="text-sm text-gray-500">Submission history coming soon.</p>
+                  <SubmissionHistory problemId={problemId} />
+                </div>
+              )}
+
+              {activeLeftTab === 'chatAI' && (
+                <div>
+                  <h2 className="text-xl font-bold mb-4">CHAT with AI</h2>
+                   <ChatAi problem={problem} currentCode={code} currentLanguage={selectedLanguage} />
                 </div>
               )}
             </>
@@ -207,12 +207,11 @@ const ProblemPage = () => {
         </div>
       </div>
 
-      {/* ── Right Panel ──────────────────────────────────────────────────── */}
+      {/* Right Panel */}
       <div className="w-1/2 flex flex-col">
         <div className="tabs tabs-bordered bg-base-200 px-4">
           {['code', 'testcase', 'result'].map(tab => (
             <button
-              type="button"
               key={tab}
               className={`tab ${activeRightTab === tab ? 'tab-active' : ''}`}
               onClick={() => setActiveRightTab(tab)}
@@ -224,13 +223,11 @@ const ProblemPage = () => {
 
         <div className="flex-1 flex flex-col overflow-hidden">
 
-          {/* ── Code tab ─────────────────────────────────────────────────── */}
           {activeRightTab === 'code' && (
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="flex items-center gap-2 p-4 border-b border-base-300">
                 {['javascript', 'java', 'cpp'].map(lang => (
                   <button
-                    type="button"
                     key={lang}
                     className={`btn btn-sm ${selectedLanguage === lang ? 'btn-primary' : 'btn-ghost'}`}
                     onClick={() => setSelectedLanguage(lang)}
@@ -254,6 +251,7 @@ const ProblemPage = () => {
                     scrollBeyondLastLine: false,
                     automaticLayout: true,
                     tabSize: 2,
+                    insertSpaces: true,
                     wordWrap: 'on',
                     lineNumbers: 'on',
                     folding: true,
@@ -262,10 +260,8 @@ const ProblemPage = () => {
                 />
               </div>
 
-              {/* Run / Submit buttons — all type="button" to prevent any accidental form submit */}
               <div className="p-4 border-t border-base-300 flex justify-between items-center">
                 <button
-                  type="button"
                   className="btn btn-ghost btn-sm"
                   onClick={() => setActiveRightTab('testcase')}
                 >
@@ -273,31 +269,24 @@ const ProblemPage = () => {
                 </button>
                 <div className="flex gap-2">
                   <button
-                    type="button"
                     className="btn btn-outline btn-sm"
                     onClick={handleRun}
                     disabled={loading}
                   >
-                    {loading
-                      ? <span className="loading loading-spinner loading-xs" />
-                      : 'Run'}
+                    {loading ? <span className="loading loading-spinner loading-xs" /> : 'Run'}
                   </button>
                   <button
-                    type="button"
                     className="btn btn-primary btn-sm"
                     onClick={handleSubmitCode}
                     disabled={loading}
                   >
-                    {loading
-                      ? <span className="loading loading-spinner loading-xs" />
-                      : 'Submit'}
+                    {loading ? <span className="loading loading-spinner loading-xs" /> : 'Submit'}
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ── Testcase / Run results tab ────────────────────────────────── */}
           {activeRightTab === 'testcase' && (
             <div className="flex-1 p-4 overflow-y-auto">
               <h3 className="font-semibold mb-4">Test Results</h3>
@@ -318,66 +307,48 @@ const ProblemPage = () => {
                 const allPassed = runResult.every(tc => tc.status_id === 3);
                 return (
                   <div className="space-y-4">
-                    {/* Summary banner */}
                     <div className={`alert ${allPassed ? 'alert-success' : 'alert-error'}`}>
                       <span className="font-semibold">
                         {allPassed ? '✅ All test cases passed!' : '❌ Some test cases failed'}
                       </span>
                     </div>
 
-                    {/* Per-test-case cards */}
                     {runResult.map((tc, i) => {
                       const passed = tc.status_id === 3;
-                      // Pull input/output from visibleTestCases since Judge0
-                      // doesn't echo them back in the run response
                       const visibleTC = problem?.visibleTestCases?.[i];
-
                       return (
                         <div
                           key={i}
                           className={`rounded-lg border ${passed ? 'border-green-500/40' : 'border-red-500/40'} overflow-hidden`}
                         >
-                          {/* Card header */}
                           <div className={`px-4 py-2 text-sm font-semibold flex items-center gap-2
                             ${passed ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'}`}>
                             {passed
                               ? `✓ Test ${i + 1} Passed`
                               : `✗ Test ${i + 1} Failed — ${tc.status?.description || 'Wrong Answer'}`}
                             {passed && tc.time && (
-                              <span className="ml-auto text-xs font-normal text-gray-400">
-                                {tc.time}s
-                              </span>
+                              <span className="ml-auto text-xs font-normal text-gray-400">{tc.time}s</span>
                             )}
                           </div>
-
-                          {/* Card body */}
                           <div className="bg-base-200 p-4 space-y-3 text-sm font-mono">
-                            {/* Input */}
                             <div>
                               <div className="text-xs text-gray-400 mb-1 font-sans">Input</div>
                               <pre className="bg-base-300 rounded p-2 whitespace-pre-wrap break-all">
                                 {visibleTC?.input ?? '—'}
                               </pre>
                             </div>
-
-                            {/* Expected output */}
                             <div>
                               <div className="text-xs text-gray-400 mb-1 font-sans">Expected Output</div>
                               <pre className="bg-base-300 rounded p-2 whitespace-pre-wrap break-all">
                                 {visibleTC?.output ?? '—'}
                               </pre>
                             </div>
-
-                            {/* Your output */}
                             <div>
                               <div className="text-xs text-gray-400 mb-1 font-sans">Your Output</div>
-                              <pre className={`rounded p-2 whitespace-pre-wrap break-all
-                                ${passed ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                              <pre className={`rounded p-2 whitespace-pre-wrap break-all ${passed ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
                                 {tc.stdout?.trim() || '(no output)'}
                               </pre>
                             </div>
-
-                            {/* Stderr / compile errors */}
                             {tc.stderr && (
                               <div>
                                 <div className="text-xs text-red-400 mb-1 font-sans">Stderr</div>
@@ -404,7 +375,6 @@ const ProblemPage = () => {
             </div>
           )}
 
-          {/* ── Result / Submit tab ───────────────────────────────────────── */}
           {activeRightTab === 'result' && (
             <div className="flex-1 p-4 overflow-y-auto">
               <h3 className="font-semibold mb-4">Submission Result</h3>
@@ -424,16 +394,14 @@ const ProblemPage = () => {
               {submitResult && !submitResult._error && (() => {
                 const accepted = submitResult.status === 'accepted';
                 return (
-                  <div className={`rounded-lg border overflow-hidden
-                    ${accepted ? 'border-green-500/40' : 'border-red-500/40'}`}>
-                    {/* Header */}
+                  <div className={`rounded-lg border overflow-hidden ${accepted ? 'border-green-500/40' : 'border-red-500/40'}`}>
                     <div className={`px-6 py-4 ${accepted ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
                       <h4 className={`text-xl font-bold ${accepted ? 'text-green-600' : 'text-red-500'}`}>
-                        {accepted ? '🎉 Accepted' : `❌ ${submitResult.status === 'wrong' ? 'Wrong Answer' : 'Runtime Error'}`}
+                        {accepted
+                          ? '🎉 Accepted'
+                          : `❌ ${submitResult.status === 'wrong' ? 'Wrong Answer' : 'Runtime Error'}`}
                       </h4>
                     </div>
-
-                    {/* Stats */}
                     <div className="bg-base-200 p-6 space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-400">Test Cases</span>

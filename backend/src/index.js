@@ -8,6 +8,7 @@ const redisClient = require('./config/redis');
 const problemRouter=require("./routes/problemcreator");
 const submitRouter=require("./routes/submit")
 const cors =require('cors')
+const aiRouter=require("./routes/aichatting")
 
 app.use(cors({
     origin:'http://localhost:5173',
@@ -20,6 +21,7 @@ app.use(cookieParser());
 app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
+app.use('/ai',aiRouter);
 
 const IntializeConnection=async()=>{
     try

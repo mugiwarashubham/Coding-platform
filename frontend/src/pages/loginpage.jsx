@@ -6,7 +6,6 @@ import { useNavigate, NavLink } from 'react-router';
 import { loginUser } from "../authSlice";
 import { useEffect, useState } from 'react';
 
-
 const loginSchema = z.object({
   emailId: z.string().email("Invalid Email"),
   password: z.string().min(8, "Password is too weak") 
@@ -21,7 +20,7 @@ function Login() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({ resolver: zodResolver(loginSchema) }); // Using renamed schema
+  } = useForm({ resolver: zodResolver(loginSchema) });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -34,15 +33,21 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200"> {/* Added bg for contrast */}
+    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title justify-center text-3xl mb-6">CodeMaster</h2> {/* Added mb-6 */}
+          <h2 className="card-title justify-center text-3xl mb-6">CodeMaster</h2>
 
-          
+    
+          {error && (
+            <div className="alert alert-error mb-4">
+              <span>{error}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-control"> {/* Removed mt-4 from first form-control for tighter spacing to title or global error */}
-              <label className="label"> {/* Removed mb-1, default spacing should be fine */}
+            <div className="form-control">
+              <label className="label">
                 <span className="label-text">Email</span>
               </label>
               <input
@@ -93,7 +98,7 @@ function Login() {
             <div className="form-control mt-8 flex justify-center">
               <button
                 type="submit"
-                className={`btn btn-primary ${loading ? 'loading btn-disabled' : ''}`} // Added btn-disabled for better UX with loading
+                className={`btn btn-primary ${loading ? 'loading btn-disabled' : ''}`}
                 disabled={loading}
               >
                 {loading ? (
@@ -105,9 +110,10 @@ function Login() {
               </button>
             </div>
           </form>
+
           <div className="text-center mt-6">
             <span className="text-sm">
-              Don't have an account?{' '} {/* Adjusted text slightly */}
+              Don't have an account?{' '}
               <NavLink to="/signup" className="link link-primary">
                 Sign Up
               </NavLink>
