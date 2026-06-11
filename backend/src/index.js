@@ -9,6 +9,7 @@ const problemRouter=require("./routes/problemcreator");
 const submitRouter=require("./routes/submit")
 const cors =require('cors')
 const aiRouter=require("./routes/aichatting")
+const videoRouter = require("./routes/videocreator");
 
 app.use(cors({
     origin:'http://localhost:5173',
@@ -22,6 +23,7 @@ app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
+app.use("/video",videoRouter);
 
 const IntializeConnection=async()=>{
     try
