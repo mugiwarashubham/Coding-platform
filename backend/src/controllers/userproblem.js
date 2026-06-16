@@ -2,7 +2,7 @@ const { getLanguageById, submitBatch, submitToken } = require("../utils/problemu
 const Problem = require("../models/problem");
 const User = require("../models/user");
 const Submission = require("../models/submission");
-const SolutionVideo=require("../models/solutionvideo");
+const SolutionVideo=require("../models/solutionVideo");
 
 const createProblem = async (req, res) => {
     const {
