@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const videoSchema = new Schema({
     problemId: {
@@ -8,32 +8,31 @@ const videoSchema = new Schema({
         required: true
     },
     userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'user',
-    required: true,
-   },
-   cloudinaryPublicId: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  secureUrl: {
-    type: String,
-    required: true
-  },
-  thumbnailUrl: {
-    type: String
-  },
-  duration: {
-    type: Number,
-    required: true
-  },
-},{
-    timestamps:true
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: true,
+    },
+    cloudinaryPublicId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    secureUrl: {
+        type: String,
+        required: true
+    },
+    thumbnailUrl: {
+        type: String
+    },
+    duration: {
+        type: Number,
+        required: true
+    },
+}, {
+    timestamps: true
 });
 
-
-
-const SolutionVideo = mongoose.model("solutionVideo",videoSchema);
+// ✅ Use existing model if already compiled, otherwise create it
+const SolutionVideo = mongoose.models.SolutionVideo || mongoose.model("SolutionVideo", videoSchema);
 
 module.exports = SolutionVideo;

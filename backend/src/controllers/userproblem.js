@@ -2,6 +2,7 @@ const { getLanguageById, submitBatch, submitToken } = require("../utils/problemu
 const Problem = require("../models/problem");
 const User = require("../models/user");
 const Submission = require("../models/submission");
+const SolutionVideo=require("../models/solutionvideo");
 
 const createProblem = async (req, res) => {
     const {
@@ -136,9 +137,26 @@ const getProblemById=async(req,res)=>{
     res.status(400).send("Id is missing")
   }
 const getProblem=await Problem.findById(id).select(' _id title description  difficulty tags visibleTestCases startCode referenceSolution');
+
+
+
+
 if(!getProblem){
     res.status(400).send("problem is missing");
 }
+
+
+//video ka jo bhi url wagarah le aao
+
+// const videos = await SolutionVideo.find({problemId:id});
+
+// if(videos){
+//  getProblem.secureUrl=secureUrl;
+//  getProblem.cloudinaryPublicId= cloudinaryPublicId;
+//  getProblem.thumbnailUrl=thumbnailUrl;
+//  getProblem.duration=duration;
+//    return  res.status(200).send(getProblem);
+// }
 res.status(200).send(getProblem);
 }
 
