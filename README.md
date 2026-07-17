@@ -49,7 +49,6 @@ Built end-to-end — schema design, auth, code execution pipeline, and deploymen
 |---|---|
 | ![Problem List](./screenshots/problem-list.png) | ![Code Editor](./screenshots/code-editor.png) |
 
-> Add your own screenshots to a `/screenshots` folder in the repo root and update the paths above.
 
 ---
 
