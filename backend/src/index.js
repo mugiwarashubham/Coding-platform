@@ -23,7 +23,6 @@ app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
-app.use("/video",videoRouter);
 
 const IntializeConnection=async()=>{
     try
