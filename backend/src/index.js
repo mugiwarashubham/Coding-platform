@@ -11,7 +11,7 @@ const cors =require('cors')
 const aiRouter=require("./routes/aichatting")
 
 app.use(cors({
-    origin:'https://coding-platform-ull7.vercel.app',
+    origin:'https://coding-platform-kvis.vercel.app',
     credentials:true
 }))
 
