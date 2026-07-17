@@ -75,6 +75,7 @@ const updateProblem=async(req,res)=>{
      if(!DsaProblem){
         return res.status(400).send("Id is not present in server");
      }
+     //loop chalega aur refernce solution check karega for multiple language
   for (const { language, completeCode } of referenceSolution) {
             const languageId = getLanguageById(language);
 

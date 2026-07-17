@@ -1,11 +1,16 @@
-const {createClient}=require('redis');
+const { createClient } = require("redis");
 
 const redisClient = createClient({
-    username: 'default',
-    password: process.env.REDIS_PASS,
-    socket: {
-        host: 'redis-17656.c12.us-east-1-4.ec2.cloud.redislabs.com',
-        port: 17656
-    }
+  username: "default",
+  password: process.env.REDIS_PASS,
+  socket: {
+    host: "ravishing-star-lovely-29159.db.redis.io",
+    port: 18222
+  }
 });
-module.exports=redisClient;     
+
+redisClient.on("error", (err) => {
+  console.error("Redis Client Error:", err);
+});
+
+module.exports = redisClient;

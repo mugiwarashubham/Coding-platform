@@ -42,7 +42,7 @@ const submitCode = async (req, res) => {
         const testResults = await submitToken(tokens);
 
         let testCasesPassed = 0;
-        let status = "accepted";   // ✅ declare kiya
+        let status = "accepted";   
         let runtime = 0;
        let memory = 0;
         let errorMessage = null;
