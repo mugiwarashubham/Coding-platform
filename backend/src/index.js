@@ -12,7 +12,7 @@ const aiRouter=require("./routes/aichatting")
 const videoRouter = require("./routes/videocreator");
 
 app.use(cors({
-    origin:'http://localhost:5173',
+    origin:'https://coding-platform-ull7.vercel.app/',
     credentials:true
 }))
 
