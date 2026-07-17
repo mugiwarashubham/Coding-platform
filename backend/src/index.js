@@ -9,10 +9,9 @@ const problemRouter=require("./routes/problemcreator");
 const submitRouter=require("./routes/submit")
 const cors =require('cors')
 const aiRouter=require("./routes/aichatting")
-const videoRouter = require("./routes/videocreator");
 
 app.use(cors({
-    origin:'https://coding-platform-ull7.vercel.app/',
+    origin:'https://coding-platform-ull7.vercel.app',
     credentials:true
 }))
 
